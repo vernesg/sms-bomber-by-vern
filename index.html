@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SMS Bomber - by Vern</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+      font-family: 'Segoe UI', monospace;
+      color: white;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    .container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 2;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #00ffcc;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      color: #00ffcc;
+      text-shadow: 0 0 10px #00ffcc;
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      padding: 12px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      width: 250px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      outline: none;
+    }
+
+    input:focus {
+      box-shadow: 0 0 10px #00ffcc;
+    }
+
+    button {
+      background: #00ffcc;
+      color: black;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 0 10px #00ffcc;
+    }
+
+    button:hover {
+      background: #00ccaa;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.1em;
+      color: #00ff88;
+    }
+
+    #loading {
+      color: yellow;
+      margin-top: 10px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 0.9em;
+      color: #ccc;
+    }
+
+    .footer span {
+      color: #00ffcc;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+
+  <div class="container">
+    <h1>🚨 SMS Bomber</h1>
+
+    <input type="text" id="phone" placeholder="Enter phone number">
+    <input type="number" id="times" placeholder="How many times?">
+    <button onclick="sendSMS()">🔥 Send SMS</button>
+
+    <div id="loading"></div>
+    <div id="result"></div>
+
+    <div class="footer">Created by <span>Vern</span></div>
+  </div>
+
+  <!-- Background Music -->
+  <audio id="bgMusic" autoplay loop muted>
+    <source src="https://files.catbox.moe/n0aql3.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    // Music autoplay with fade-in
+    const music = document.getElementById("bgMusic");
+    music.volume = 0;
+    music.play().then(() => {
+      setTimeout(() => {
+        music.muted = false;
+        let volume = 0;
+        const fade = setInterval(() => {
+          if (volume < 0.4) {
+            volume += 0.05;
+            music.volume = volume;
+          } else {
+            clearInterval(fade);
+          }
+        }, 200);
+      }, 1000);
+    }).catch(err => console.warn("Music autoplay error:", err));
+
+    // SMS function
+    async function sendSMS() {
+      const phone = document.getElementById('phone').value.trim();
+      const times = document.getElementById('times').value.trim();
+      const resultDiv = document.getElementById('result');
+      const loadingDiv = document.getElementById('loading');
+
+      resultDiv.innerText = '';
+      loadingDiv.innerText = '';
+
+      if (!phone || !times) {
+        resultDiv.style.color = 'orange';
+        resultDiv.innerText = '⚠️ Please enter phone number and number of times.';
+        return;
+      }
+
+      loadingDiv.innerText = '⏳ Sending SMS...';
+
+      try {
+        const res = await fetch(`https://haji-mix.up.railway.app/api/smsbomber?phone=${encodeURIComponent(phone)}&times=${encodeURIComponent(times)}`);
+        const data = await res.json();
+
+        loadingDiv.innerText = '';
+        resultDiv.style.color = data.success ? '#00ff88' : '#ff4a4a';
+        resultDiv.innerText = data.message || JSON.stringify(data);
+      } catch (err) {
+        loadingDiv.innerText = '';
+        resultDiv.style.color = '#ff4a4a';
+        resultDiv.innerText = '❌ Failed to connect to API.';
+        console.error(err);
+      }
+    }
+
+    // Matrix background animation
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+
+    const letters = "01VERNLOVE";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#00ffcc";
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    setInterval(draw, 40);
+
+    window.onresize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+  </script>
+</body>
+</html>
