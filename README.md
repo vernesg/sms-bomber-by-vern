@@ -1,6 +1,6 @@
 # 🚨 SMS Bomber - by Vern
 
-A sleek, black-themed **SMS bombing tool** with animated Matrix-style background, autoplay music, and a modern UI. Powered by the [Haji Mix SMS API](https://haji-mix.up.railway.app/api/smsbomber).
+A sleek, black-themed **SMS bombing tool** with animated Matrix-style background, autoplay music, and a modern UI. Powered by the [Haji Mix SMS API](https://vern-xx.up.railway.app/api/smsbomber).
 
 > ⚠️ **For educational and testing purposes only. Do not misuse this tool.**
 
